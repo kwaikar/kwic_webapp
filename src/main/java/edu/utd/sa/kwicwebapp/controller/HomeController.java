@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -21,16 +22,19 @@ import edu.utd.sa.kwic.AlphabeticShift;
 import edu.utd.sa.kwic.CircularShiftInterface;
 import edu.utd.sa.kwic.Master;
 import edu.utd.sa.kwicwebapp.common.LoginBean;
+import edu.utd.sa.kwicwebapp.service.InputBean;
+import edu.utd.sa.kwicwebapp.service.SearchServiceImpl;
 
 @Controller
 public class HomeController {
 
-	final static Logger logger = Logger.getLogger(HomeController.class);
+
+	@Autowired
+	private SearchServiceImpl searchService = null;
 
 	@RequestMapping(value = "/index", method = RequestMethod.GET)
-	public ModelAndView home(ModelMap model, HttpServletRequest request,
-			@RequestParam String indexURL) {
-		String message="";
+	public ModelAndView home(ModelMap model, HttpServletRequest request, @RequestParam String indexURL) {
+		String message = "";
 		if (request.getSession().getAttribute("user") != null) {
 			if (indexURL != null && indexURL.trim().length() != 0) {
 
@@ -41,58 +45,89 @@ public class HomeController {
 
 					dataRead = IOUtils.toString(in);
 					String[] lines = dataRead.split("\n");
-					Master master= new Master();
-					List<CircularShiftInterface> circularShifts = master.getCircularShifts(lines);
+					Master master = new Master();
+					for (String line : lines) {
+						boolean delete = false;
 
-					AlphabeticShift as = new AlphabeticShift();
-					List<String> csIndex=as.getUnsortedShifts(circularShifts);
-					request.getSession().setAttribute("csIndex", csIndex);
-					as.alpha(circularShifts);
+						if (line.contains("(EXPIRED)")) {
+							delete = true;
+							line = line.replaceAll("\\(EXPIRED\\)", "");
+						}
+						String[] inputs = line.split("=");
+						String[] url = inputs[0].split(":");
+						// validation
+						String[] arr = { inputs[1] };
+						List<CircularShiftInterface> circularShifts = master.getCircularShifts(arr);
 
-					request.getSession().setAttribute("asIndex", Master.output(as));
-					
-					
+						AlphabeticShift as = new AlphabeticShift();
+						List<String> csIndex = as.getUnsortedShifts(circularShifts);
+						as.alpha(circularShifts);
+						searchService.populateIndex(Master.output(as), inputs[1], url[0], Integer.parseInt(url[1]),
+								delete);
+					}
+					request.setAttribute("message", "Kwic Index has been generated and stored for given url");
+					request.getSession().setAttribute("indexPresent", "true");
+
+					// request.getSession().setAttribute("csIndex", csIndex);
+					// request.getSession().setAttribute("asIndex",
+					// Master.output(as));
+
 				} catch (IOException e) {
-					message ="Error occured while downloading data, please retry later.";
+					message = "Error occured while downloading data, please retry later.";
 					e.printStackTrace();
 				} finally {
 					IOUtils.closeQuietly(in);
 				}
 				request.setAttribute("message", message);
 			}
-		} 
+		}
+		return new ModelAndView("home");
+	}
+
+	@RequestMapping(value = "/search", method = RequestMethod.POST)
+	public ModelAndView search(ModelMap model, HttpServletRequest request, @ModelAttribute String prefix) {
+
+		Set<InputBean> searchResults = searchService.select(prefix);
+		request.setAttribute("searchResults", searchResults);
+		return new ModelAndView("home");
+	}
+
+	@RequestMapping(value = "/deleteIndex", method = RequestMethod.GET)
+	public ModelAndView deleteIndex(ModelMap model, HttpServletRequest request ) {
+
+		request.getSession().removeAttribute("indexPresent");
+		searchService.deleteAll();
+		request.setAttribute("message", "Kwic Index was removed from the system");
+		request.removeAttribute("searchResults");
 		return new ModelAndView("home");
 	}
 
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	public ModelAndView home(ModelMap model, HttpServletRequest request, @ModelAttribute LoginBean loginBean) {
 		return new ModelAndView("home");
-		
-	}
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ModelAndView login(ModelMap model, HttpServletRequest request, @ModelAttribute LoginBean loginBean) {
-		logger.debug("loginBean= " + loginBean);
-		 
-		if(loginBean.getUserName().equals("kwicuser") && loginBean.getPassword().equalsIgnoreCase("utd123"))
-		{
-			request.getSession().setAttribute("user" ,loginBean);
-			model.addAttribute("userName", loginBean.getUserName());
-			return new ModelAndView("home");
-			
-		}
-		else
-		{
-			model.addAttribute("message",
-					"Please check credentials entered.");
-			return new ModelAndView("home");
-			
-		}
- 
+
 	}
 
- 
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public ModelAndView login(ModelMap model, HttpServletRequest request, @ModelAttribute LoginBean loginBean) {
+		System.out.println("loginBean= " + loginBean);
+
+		if (loginBean.getUserName().equals("kwicuser") && loginBean.getPassword().equalsIgnoreCase("utd123")) {
+			request.getSession().setAttribute("user", loginBean);
+			model.addAttribute("userName", loginBean.getUserName());
+			return new ModelAndView("home");
+
+		} else {
+			model.addAttribute("message", "Please check credentials entered.");
+			return new ModelAndView("home");
+
+		}
+
+	}
+
 	/**
 	 * This method logs user out
+	 * 
 	 * @param request
 	 * @return
 	 */
@@ -100,7 +135,7 @@ public class HomeController {
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public String logUserOut(HttpServletRequest request) {
 		request.getSession().invalidate();
-		logger.debug("loggingout");
+		System.out.println("loggingout");
 		return "redirect:/";
 	}
 

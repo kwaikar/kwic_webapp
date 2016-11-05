@@ -9,20 +9,8 @@
 
 <link rel="stylesheet" href="resources/css/style.css">
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-
-<script
-	src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-<script
-	src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
-
 <script
 	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('#searchResults').DataTable();
-	});
-</script>
 <head>
 <body>
 	<div class="panel panel-info center"
@@ -41,7 +29,7 @@
 			<c:if test="${user==null}">
 
 				<div class="panel panel-info center"
-					style="width: 400px; text-align: center; margin-top: 50px">
+					style="width: 400px; text-align: center; margin-top: 50px;" >
 					<div class="panel-heading">
 						<div>
 							<h3>Login</h3>
@@ -79,22 +67,16 @@
 			<c:if test="${user!=null}">
 				<div class="panel-heading">
 					<div align="right">
-						<c:if test="${indexPresent!=null}">
-							<a href="deleteIndex">delete Index </a> | 
-					</c:if>
 						<a href="logout">logout</a>
 					</div>
 				</div>
 				<div class="panel-body">
 					<form name="loginForm" id="loginForm" action="index" method="get">
 						<div class="row" style="padding-top: 10px">
-							<div class="col-xs-4">
-								<h4>URL to be indexed</h4>
-							</div>
+							<div class="col-xs-4"><h4>URL to be indexed</h4></div>
 							<div class="col-xs-4">
 								<input type="text" required class="form-control" name="indexURL"
-									id="indexURL"
-									value="https://raw.githubusercontent.com/kwaikar/Statistical-Opinion-Polarity-Detection/master/src/main/resources/input_test2" />
+									id="indexURL" value="" />
 							</div>
 							<div class="col-xs-4" style="text-align: right">
 								<input id="loginBtn" name="loginBtn" class="btn btn-info"
@@ -102,48 +84,37 @@
 							</div>
 						</div>
 					</form>
-					<c:if test="${indexPresent!=null}">
-						<form name="searchForm" id="searchForm" action="search"
-							method="post">
-							<div class="row" style="padding-top: 10px">
-								<div class="col-xs-4">
-									<h4>Search:</h4>
-								</div>
-								<div class="col-xs-4">
-									<input type="text" required class="form-control" name="prefix"
-										id="prefix" value="" />
-								</div>
-								<div class="col-xs-4" style="text-align: right">
-									<input id="loginBtn" name="loginBtn" class="btn btn-info"
-										type="submit" value="Search" />
-								</div>
-							</div>
-						</form>
-					</c:if>
-					<c:if test="${searchResults!=null}">
-						<div class="well well-sm" style="text-align: center">
-							<h4>Search Results</h4>
-						</div>
-								<table class="table table-striped table-bordered" id="searchResults" width="100%">
-									<thead>
-										<tr>
-											<th>S.No.</th>
-											<th>URL</th>
-											<th>Description</th>
-											<th>Priority</th>
-										</tr>
-									</thead>
-									<c:forEach items="${searchResults}" var="entry" varStatus="cnt">
-										<tr>
-											<td>${cnt.count}</td>
-											<td><a target="_new" href="${entry.url}">${entry.url}</a></td>
-											<td>${entry.originalString}</td>
-											<td>${entry.priority}</td>
-										</tr>
+					<c:if test="${csIndex!=null}">
+						<div class="row" style="padding: 10px; border: #0000ff 1px">
+
+							<div class="col-xs-4"><h4>Circular Shifted Index:</h4></div>
+							<div class="col-xs-8" border="1px">
+
+									<table class="table table-striped">
+									<c:forEach items="${csIndex}" var="entry">
+										<tr><td>${entry}</td></tr>
 									</c:forEach>
 								</table>
+							</div>
+
+						</div>
 					</c:if>
 
+					<c:if test="${asIndex!=null}">
+						<div class="row" style="padding: 10px; border: #0000ff 1px">
+
+							<div class="col-xs-4"><h4>Alphabetic Shifted Index:</h4></div>
+							<div class="col-xs-8">
+
+								<table class="table table-striped">
+									<c:forEach items="${asIndex}" var="entry">
+										<tr><td>${entry}</td></tr>
+									</c:forEach>
+								</table>
+							</div>
+
+						</div>
+					</c:if>
 				</div>
 			</c:if>
 
