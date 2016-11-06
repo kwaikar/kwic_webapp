@@ -6,6 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet"
 	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css">
+
 
 <link rel="stylesheet" href="resources/css/style.css">
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
