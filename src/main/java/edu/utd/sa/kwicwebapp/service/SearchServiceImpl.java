@@ -1,7 +1,7 @@
 package edu.utd.sa.kwicwebapp.service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -50,27 +50,27 @@ public class SearchServiceImpl {
 	public Set<InputBean> select(String prefix) {
 		DatabaseManager dbm = DatabaseManager.getInstance();
 		String[] splits = null;
-		Set<InputBean> op = new HashSet<InputBean>();
+		Set<InputBean> op = new LinkedHashSet<InputBean>();
 		if (prefix.contains(" AND ")) {
 			splits = prefix.split(" AND ");
-			Set<InputBean> set1 = new HashSet<InputBean> (dbm.select(splits[0]));
-			Set<InputBean> set2 = new HashSet<InputBean> (dbm.select(splits[1]));
+			Set<InputBean> set1 = new LinkedHashSet<InputBean> (dbm.select(splits[0]));
+			Set<InputBean> set2 = new LinkedHashSet<InputBean> (dbm.select(splits[1]));
 			set1.retainAll(set2);
 			op= set1;
 		} else if (prefix.contains(" OR ")) {
 			splits = prefix.split(" OR ");
-			Set<InputBean> set1 = new HashSet<InputBean> (dbm.select(splits[0]));
-			Set<InputBean> set2 = new HashSet<InputBean> (dbm.select(splits[1]));
+			Set<InputBean> set1 = new LinkedHashSet<InputBean> (dbm.select(splits[0]));
+			Set<InputBean> set2 = new LinkedHashSet<InputBean> (dbm.select(splits[1]));
 			set1.addAll(set2);
 			op= set1;
 		}else if (prefix.startsWith("NOT ")) {
-			System.out.println("Found"+	new HashSet<InputBean> (	dbm.selectNOT( prefix.replaceAll("NOT ",""))));
-			op= new HashSet<InputBean> (	dbm.selectNOT( prefix.replaceAll("NOT ","")));
+			System.out.println("Found"+	new LinkedHashSet<InputBean> (	dbm.selectNOT( prefix.replaceAll("NOT ",""))));
+			op= new LinkedHashSet<InputBean> (	dbm.selectNOT( prefix.replaceAll("NOT ","")));
 			 
 		}
 		else
 		{
-		op=new HashSet<InputBean> (dbm.select(prefix));
+		op=new LinkedHashSet<InputBean> (dbm.select(prefix));
 		}
 		System.out.println("OP:"+op);
 		return op;

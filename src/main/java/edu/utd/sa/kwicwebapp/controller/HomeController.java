@@ -3,6 +3,7 @@ package edu.utd.sa.kwicwebapp.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import edu.utd.sa.kwic.AlphabeticShift;
 import edu.utd.sa.kwic.CircularShiftInterface;
 import edu.utd.sa.kwic.Master;
+import edu.utd.sa.kwic.NoiseEliminator;
 import edu.utd.sa.kwicwebapp.common.LoginBean;
 import edu.utd.sa.kwicwebapp.service.SearchServiceImpl;
 
@@ -59,8 +61,13 @@ public class HomeController {
 						List<CircularShiftInterface> circularShifts = master.getCircularShifts(arr);
 
 						AlphabeticShift as = new AlphabeticShift();
-						List<String> csIndex = as.getUnsortedShifts(circularShifts);
-						as.alpha(circularShifts);
+						List<String> circularShiftsStr= new LinkedList<String>();
+						for (CircularShiftInterface circularShiftInterface : circularShifts) {
+							circularShiftsStr.addAll(circularShiftInterface.getCircularShifts());
+						}
+						NoiseEliminator nse = new NoiseEliminator();
+						as.alpha(nse.getNoiseLessShifts(circularShiftsStr));
+						
 						searchService.populateIndex(Master.output(as), inputs[1], url[0], Integer.parseInt(url[1]),
 								delete);
 					}

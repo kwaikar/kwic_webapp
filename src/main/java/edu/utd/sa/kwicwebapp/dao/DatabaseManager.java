@@ -91,14 +91,14 @@ public class DatabaseManager {
 
 		try {
 			Statement stmt = connection.createStatement();
-			String query = "Select * from CyberMiner where " + " shiftedIndex like '" + prefix
+			String query = "Select distinct shiftedIndex, originalString, url, priority from CyberMiner where " + " shiftedIndex like '" + prefix
 					+ "%' order by priority desc ;";
 
 			ResultSet result = stmt.executeQuery(query);
 
 			while (result.next()) {
 				InputBean bean = new InputBean(result.getString("shiftedIndex"), result.getString("originalString"),
-						result.getString("url"), result.getInt("priority"), result.getInt("id"));
+						result.getString("url"), result.getInt("priority"));
 
 				list.add(bean);
 			}
@@ -121,14 +121,14 @@ public class DatabaseManager {
 
 		try {
 			Statement stmt = connection.createStatement();
-			String query = "Select * from CyberMiner where " + " shiftedIndex Not like '%" + prefix
+			String query = "Select distinct  shiftedIndex, originalString, url, priority  from CyberMiner where " + " shiftedIndex Not like '%" + prefix
 					+ "%' order by priority desc ;";
 
 			ResultSet result = stmt.executeQuery(query);
 
 			while (result.next()) {
 				InputBean bean = new InputBean(result.getString("shiftedIndex"), result.getString("originalString"),
-						result.getString("url"), result.getInt("priority"), result.getInt("id"));
+						result.getString("url"), result.getInt("priority"));
 
 				list.add(bean);
 			}
