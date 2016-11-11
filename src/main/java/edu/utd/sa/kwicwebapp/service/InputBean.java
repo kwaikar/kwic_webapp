@@ -1,7 +1,5 @@
 package edu.utd.sa.kwicwebapp.service;
 
-import java.util.UUID;
-
 public class InputBean {
 
 	/* (non-Javadoc)
@@ -18,7 +16,7 @@ public class InputBean {
 	public String originalString = null;
 	public String url=null;
 	public int priority=-1;
-	public String id=null;
+	public Integer id=null;
 	
 	public InputBean(String shiftedIndex, String originalString,String url,int priority) {
 		super();
@@ -26,7 +24,15 @@ public class InputBean {
 		this.originalString = originalString;
 		this.url=url;
 		this.priority=priority;
-		this.id= UUID.randomUUID().toString();
+	}
+	
+	public InputBean(String shiftedIndex, String originalString,String url,int priority, int id) {
+		super();
+		this.shiftedIndex = shiftedIndex;
+		this.originalString = originalString;
+		this.url=url;
+		this.priority=priority;
+		this.id=id;
 	}
 
 	/**
@@ -78,7 +84,7 @@ public class InputBean {
 	public String getOriginalString() {
 		return originalString;
 	}
-
+ 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -86,7 +92,9 @@ public class InputBean {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((originalString == null) ? 0 : originalString.hashCode());
+		result = prime * result + priority;
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		return result;
 	}
 
@@ -102,12 +110,33 @@ public class InputBean {
 		if (getClass() != obj.getClass())
 			return false;
 		InputBean other = (InputBean) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (originalString == null) {
+			if (other.originalString != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!originalString.equals(other.originalString))
+			return false;
+		if (priority != other.priority)
+			return false;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
 			return false;
 		return true;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Integer getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	/**

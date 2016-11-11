@@ -2,7 +2,6 @@ package edu.utd.sa.kwicwebapp.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -39,27 +38,42 @@ public class SearchServiceImpl {
 		dbm.delete(url);
 	}
 
+	public List<String> autocomplete(String prefix)
+	{
+		List<String> list = new ArrayList<String>();
+		Set<InputBean> beans = select(prefix);
+		for (InputBean inputBean : beans) {
+			list.add(inputBean.originalString);
+		}
+		return list;
+	}
 	public Set<InputBean> select(String prefix) {
-		List<InputBean> list = new LinkedList<InputBean>();
 		DatabaseManager dbm = DatabaseManager.getInstance();
 		String[] splits = null;
+		Set<InputBean> op = new HashSet<InputBean>();
 		if (prefix.contains(" AND ")) {
 			splits = prefix.split(" AND ");
-			Set<InputBean> set1 = new HashSet(dbm.select(splits[0]));
-			Set<InputBean> set2 = new HashSet(dbm.select(splits[1]));
+			Set<InputBean> set1 = new HashSet<InputBean> (dbm.select(splits[0]));
+			Set<InputBean> set2 = new HashSet<InputBean> (dbm.select(splits[1]));
 			set1.retainAll(set2);
-			return set1;
+			op= set1;
 		} else if (prefix.contains(" OR ")) {
 			splits = prefix.split(" OR ");
-			Set<InputBean> set1 = new HashSet(dbm.select(splits[0]));
-			Set<InputBean> set2 = new HashSet(dbm.select(splits[1]));
+			Set<InputBean> set1 = new HashSet<InputBean> (dbm.select(splits[0]));
+			Set<InputBean> set2 = new HashSet<InputBean> (dbm.select(splits[1]));
 			set1.addAll(set2);
-			return set1;
+			op= set1;
 		}else if (prefix.startsWith("NOT ")) {
-		return new HashSet(	dbm.selectNOT( prefix.replaceAll("NOT ","")));
+			System.out.println("Found"+	new HashSet<InputBean> (	dbm.selectNOT( prefix.replaceAll("NOT ",""))));
+			op= new HashSet<InputBean> (	dbm.selectNOT( prefix.replaceAll("NOT ","")));
 			 
 		}
-		return new HashSet(dbm.select(prefix));
+		else
+		{
+		op=new HashSet<InputBean> (dbm.select(prefix));
+		}
+		System.out.println("OP:"+op);
+		return op;
 	}
 
 }

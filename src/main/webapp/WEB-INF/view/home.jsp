@@ -10,8 +10,11 @@
 	href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css">
 
 
+<link rel="stylesheet"
+	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="resources/css/style.css">
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script
 	src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
@@ -24,6 +27,15 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('#searchResults').DataTable();
+
+		$("#prefix").autocomplete({
+			headers : {
+				Accept : 'application/json'
+			},
+			source : "autocomplete",
+			minLength : 1
+		});
+
 	});
 </script>
 <head>
@@ -113,8 +125,8 @@
 									<h4>Search:</h4>
 								</div>
 								<div class="col-xs-4">
-									<input type="text" required class="form-control" name="prefix"
-										id="prefix" value="" />
+									<input type="text"   class="form-control" name="prefix"
+										id="prefix"   />
 								</div>
 								<div class="col-xs-4" style="text-align: right">
 									<input id="loginBtn" name="loginBtn" class="btn btn-info"
@@ -127,24 +139,25 @@
 						<div class="well well-sm" style="text-align: center">
 							<h4>Search Results</h4>
 						</div>
-								<table class="table table-striped table-bordered" id="searchResults" width="100%">
-									<thead>
-										<tr>
-											<th>S.No.</th>
-											<th>URL</th>
-											<th>Description</th>
-											<th>Priority</th>
-										</tr>
-									</thead>
-									<c:forEach items="${searchResults}" var="entry" varStatus="cnt">
-										<tr>
-											<td>${cnt.count}</td>
-											<td><a target="_new" href="${entry.url}">${entry.url}</a></td>
-											<td>${entry.originalString}</td>
-											<td>${entry.priority}</td>
-										</tr>
-									</c:forEach>
-								</table>
+						<table class="table table-striped table-bordered"
+							id="searchResults" width="100%">
+							<thead>
+								<tr>
+									<th>S.No.</th>
+									<th>URL</th>
+									<th>Description</th>
+									<th>Priority</th>
+								</tr>
+							</thead>
+							<c:forEach items="${searchResults}" var="entry" varStatus="cnt">
+								<tr>
+									<td>${cnt.count}</td>
+									<td><a target="_new" href="${entry.url}">${entry.url}</a></td>
+									<td>${entry.originalString}</td>
+									<td>${entry.priority}</td>
+								</tr>
+							</c:forEach>
+						</table>
 					</c:if>
 
 				</div>
