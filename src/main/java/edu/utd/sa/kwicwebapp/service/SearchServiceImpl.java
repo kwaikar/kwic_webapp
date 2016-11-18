@@ -48,6 +48,7 @@ public class SearchServiceImpl {
 		return list;
 	}
 	public Set<InputBean> select(String prefix) {
+		System.out.println("Prefix call"+prefix);
 		DatabaseManager dbm = DatabaseManager.getInstance();
 		String[] splits = null;
 		Set<InputBean> op = new LinkedHashSet<InputBean>();

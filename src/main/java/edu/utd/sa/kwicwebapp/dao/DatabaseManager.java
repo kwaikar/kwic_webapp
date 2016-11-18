@@ -9,12 +9,10 @@ import java.util.List;
 
 import edu.utd.sa.kwicwebapp.service.InputBean;
 
-//import edu.utd.sa.kwicwebapp.service.InputBean;
 
 public class DatabaseManager {
 
 	private DatabaseManager() {
-		// TODO Auto-generated constructor stub
 	}
 
 	private Connection connection;
@@ -23,11 +21,9 @@ public class DatabaseManager {
 	public static synchronized DatabaseManager getInstance() {
 		if (dbManager == null) {
 			dbManager = new DatabaseManager();
-			// Open connection to the database and population connection
-			// variable
+		 
 
 			try {
-				// create a mysql database connection
 				String myDriver = "com.mysql.jdbc.Driver";
 				String myUrl = "jdbc:mysql://localhost/SA";
 				Class.forName(myDriver);
@@ -50,10 +46,9 @@ public class DatabaseManager {
 				// into table
 
 				String query = "Insert into CyberMiner (  shiftedIndex, originalString, url, priority ) "
-						+ " values ('" + bean.getShiftedIndex() + "','"
+						+ " values ('" + bean.getShiftedIndex().toLowerCase() + "','"
 						+ bean.getOriginalString() + "','" + bean.getUrl() + "'," + bean.getPriority() + ");";
 				stmt.execute(query);
-
 			}
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -82,19 +77,24 @@ public class DatabaseManager {
 			String query = "DELETE FROM CyberMiner where url like '" + url + "';";
 			stmt.executeUpdate(query);
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.err.println(e.getMessage());
 		}
 	}
 
 	public List<InputBean> select(String prefix) {
 		List<InputBean> list = new LinkedList<InputBean>();
+		
 
+		System.out.println("Prefix call"+prefix);
 		try {
 			Statement stmt = connection.createStatement();
-			String query = "Select distinct shiftedIndex, originalString, url, priority from CyberMiner where " + " shiftedIndex like '" + prefix
+			String query = "Select distinct shiftedIndex, originalString, url, priority from CyberMiner where " + " shiftedIndex like '" + prefix.toLowerCase()
 					+ "%' order by priority desc ;";
 
+			System.out.println("Prefix query"+query);
 			ResultSet result = stmt.executeQuery(query);
+			System.out.println("result query"+result);
 
 			while (result.next()) {
 				InputBean bean = new InputBean(result.getString("shiftedIndex"), result.getString("originalString"),
@@ -104,6 +104,7 @@ public class DatabaseManager {
 			}
 			stmt.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.err.println(e.getMessage());
 		}
 		return list;
@@ -121,7 +122,7 @@ public class DatabaseManager {
 
 		try {
 			Statement stmt = connection.createStatement();
-			String query = "Select distinct  shiftedIndex, originalString, url, priority  from CyberMiner where " + " shiftedIndex Not like '%" + prefix
+			String query = "Select distinct  shiftedIndex, originalString, url, priority  from CyberMiner where " + " shiftedIndex Not like '%" + prefix.toLowerCase()
 					+ "%' order by priority desc ;";
 
 			ResultSet result = stmt.executeQuery(query);
@@ -134,6 +135,7 @@ public class DatabaseManager {
 			}
 			stmt.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.err.println(e.getMessage());
 		}
 System.out.println("resturning"+list);

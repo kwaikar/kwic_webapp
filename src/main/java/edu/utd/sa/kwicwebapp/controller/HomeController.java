@@ -68,7 +68,8 @@ public class HomeController {
 						}
 						NoiseEliminator nse = new NoiseEliminator();
 						as.alpha(nse.getNoiseLessShifts(circularShiftsStr));
-						if (url[0].trim().length() > 0 && url[0].trim().replaceFirst("\\.","").replaceFirst("\\.","").contains(".")) {
+						System.out.println("splits =- "+url[0].split("\\.").length);
+						if (url[0].trim().length() > 0 && url[0].split("\\.").length>2) {
 							searchService.populateIndex(Master.output(as), inputs[1], url[0], Integer.parseInt(url[1]),
 									delete);
 						}
@@ -92,8 +93,9 @@ public class HomeController {
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	public ModelAndView search(ModelMap model, HttpServletRequest request, @RequestParam String prefix) {
 
-		System.out.println(":Request received"+prefix);
+		System.out.println(":Request received: "+prefix);
 		Set<InputBean> results =searchService.select(prefix);
+		System.out.println(":results received: "+results);
 		if(results.size()>0)
 		{
 			request.setAttribute("searchResults", results);	
