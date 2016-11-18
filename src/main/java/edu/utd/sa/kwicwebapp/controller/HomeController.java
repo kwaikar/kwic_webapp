@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,11 +25,11 @@ import edu.utd.sa.kwic.CircularShiftInterface;
 import edu.utd.sa.kwic.Master;
 import edu.utd.sa.kwic.NoiseEliminator;
 import edu.utd.sa.kwicwebapp.common.LoginBean;
+import edu.utd.sa.kwicwebapp.service.InputBean;
 import edu.utd.sa.kwicwebapp.service.SearchServiceImpl;
 
 @Controller
 public class HomeController {
-
 
 	@Autowired
 	private SearchServiceImpl searchService = null;
@@ -61,22 +62,20 @@ public class HomeController {
 						List<CircularShiftInterface> circularShifts = master.getCircularShifts(arr);
 
 						AlphabeticShift as = new AlphabeticShift();
-						List<String> circularShiftsStr= new LinkedList<String>();
+						List<String> circularShiftsStr = new LinkedList<String>();
 						for (CircularShiftInterface circularShiftInterface : circularShifts) {
 							circularShiftsStr.addAll(circularShiftInterface.getCircularShifts());
 						}
 						NoiseEliminator nse = new NoiseEliminator();
 						as.alpha(nse.getNoiseLessShifts(circularShiftsStr));
-						
-						searchService.populateIndex(Master.output(as), inputs[1], url[0], Integer.parseInt(url[1]),
-								delete);
+						if (url[0].trim().length() > 0 && url[0].trim().replaceFirst("\\.","").replaceFirst("\\.","").contains(".")) {
+							searchService.populateIndex(Master.output(as), inputs[1], url[0], Integer.parseInt(url[1]),
+									delete);
+						}
 					}
 					request.setAttribute("message", "Kwic Index has been generated and stored for given url");
 					request.getSession().setAttribute("indexPresent", "true");
-
-					// request.getSession().setAttribute("csIndex", csIndex);
-					// request.getSession().setAttribute("asIndex",
-					// Master.output(as));
+ 
 
 				} catch (IOException e) {
 					message = "Error occured while downloading data, please retry later.";
@@ -92,21 +91,31 @@ public class HomeController {
 
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	public ModelAndView search(ModelMap model, HttpServletRequest request, @RequestParam String prefix) {
- 
-		System.out.println(":Request received : "+prefix);
-		request.setAttribute("searchResults", searchService.select(prefix));
+
+		System.out.println(":Request received"+prefix);
+		Set<InputBean> results =searchService.select(prefix);
+		if(results.size()>0)
+		{
+			request.setAttribute("searchResults", results);	
+		}
+		else
+		{
+			request.setAttribute("message", "* No Search Results found");
+		}
+			
+		
 		return new ModelAndView("home");
 	}
 
-	@RequestMapping(value = "/autocomplete", method = RequestMethod.GET,headers="Accept=*/*")
-	public @ResponseBody List<String> autocomplete(ModelMap model, HttpServletRequest request, @RequestParam String term) {
+	@RequestMapping(value = "/autocomplete", method = RequestMethod.GET, headers = "Accept=*/*")
+	public @ResponseBody List<String> autocomplete(ModelMap model, HttpServletRequest request,
+			@RequestParam String term) {
 
 		return searchService.autocomplete(term);
 	}
-	
-	
+
 	@RequestMapping(value = "/deleteIndex", method = RequestMethod.GET)
-	public ModelAndView deleteIndex(ModelMap model, HttpServletRequest request ) {
+	public ModelAndView deleteIndex(ModelMap model, HttpServletRequest request) {
 
 		request.getSession().removeAttribute("indexPresent");
 		searchService.deleteAll();
@@ -128,9 +137,8 @@ public class HomeController {
 		if (loginBean.getUserName().equals("kwicuser") && loginBean.getPassword().equalsIgnoreCase("utd123")) {
 			request.getSession().setAttribute("user", loginBean);
 			model.addAttribute("userName", loginBean.getUserName());
-			
-			if(searchService.select("").size()!=0)
-			{
+
+			if (searchService.select("").size() != 0) {
 				request.getSession().setAttribute("indexPresent", "true");
 
 			}
